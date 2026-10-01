@@ -1,5 +1,5 @@
 # Tested on cl with Python 3.11, torch 2.5.1+cu121.
-harmonit @ git+ssh://git@github.com/muqsitamir/HarmonIt.git@isbi2027-submission
+harmonit @ git+https://github.com/muqsitamir/HarmonIt.git@isbi2027-submission
 monai==1.5.1
 nibabel
 numpy
@@ -8,3 +8,4 @@ scipy
 scikit-image
 matplotlib
 huggingface_hub
+pytest

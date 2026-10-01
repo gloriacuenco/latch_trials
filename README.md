@@ -12,7 +12,9 @@ Plan and decisions: [docs/PLAN.md](docs/PLAN.md).
 
 | Path | Contents |
 | --- | --- |
-| `scripts/` | Experiment code |
+| `hdev/` | Shared code: preprocessing and its inverse, the frozen VAEs |
+| `scripts/` | Experiment entry points |
+| `tests/` | Unit tests (`PYTHONPATH=. python -m pytest tests`) |
 | `slurm/` | Launchers for the cl cluster |
 | `results/<run>/` | Small versioned outputs (CSV, Markdown, small figures) with a README per run; large artifacts stay on cl or vpulab |
 | `docs/` | Plan, protocol and decisions |
@@ -23,7 +25,7 @@ Data loading, preprocessing and the audit evaluator come from HarmonIt pinned to
 so the audit's numbers stay reproducible while this code changes:
 
 ```bash
-pip install "harmonit @ git+ssh://git@github.com/muqsitamir/HarmonIt.git@isbi2027-submission"
+pip install "harmonit @ git+https://github.com/muqsitamir/HarmonIt.git@isbi2027-submission"
 ```
 
 Or point `HARMONIT_SRC` at a checkout's `src/` (the Slurm launchers prepend it to `PYTHONPATH`).

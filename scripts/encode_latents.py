@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from hdev.preprocess import HEAD_THR, cut_fraction, from_grid, place, to_grid
+from hdev.preprocess import HEAD_THR, cut_fraction, from_grid, place, place_on_brain, to_grid
 from hdev.vae import VAES, decode, encode, load_vae
 
 
@@ -30,7 +30,9 @@ def main() -> None:
     p.add_argument("--vae", required=True, choices=sorted(VAES))
     p.add_argument("--ckpt", required=True)
     p.add_argument("--grid", nargs=3, type=int, required=True)
-    p.add_argument("--top-margin", type=int, default=8)
+    p.add_argument("--top-margin", type=int, default=8, help="Head-box placement only.")
+    p.add_argument("--brain-index", default=None, help="brain_index.csv: centre the grid on the FastSurfer brain box")
+    p.add_argument("--qc", default=None, help="qc_exclusions.csv: these scans fall back to head-box placement")
     p.add_argument("--out-dir", required=True)
     p.add_argument("--check", type=int, default=8, help="Decode this many validation scans as a check.")
     p.add_argument("--limit", type=int, default=None)
@@ -44,19 +46,30 @@ def main() -> None:
     df = pd.read_csv(args.index)
     if args.limit:
         df = df.head(args.limit)
-    check_ids = set(df[df["split"] == "val"].groupby("site")["subject_id"].first().head(args.check))
+    brain = pd.read_csv(args.brain_index).set_index("subject_id") if args.brain_index else None
+    excluded = set(pd.read_csv(args.qc)["subject_id"]) if args.qc else set()
+    check_ids = set(df[(df["split"] == "val") & ~df["subject_id"].isin(excluded)]
+                    .groupby("site")["subject_id"].first().head(args.check))
     model = load_vae(args.vae, args.ckpt, device)
 
     rows = []
     for i, r in enumerate(df.itertuples(index=False)):
         t0 = time.time()
         x = np.asarray(nib.load(str(Path(args.ref_dir) / f"{r.subject_id}.nii.gz")).dataobj, dtype=np.float32)
-        bbox = ((r.bbox_x0, r.bbox_x1), (r.bbox_y0, r.bbox_y1), (r.bbox_z0, r.bbox_z1))
-        pl = place(bbox, tuple(args.grid), args.top_margin)
+        if brain is not None and r.subject_id not in excluded:
+            b = brain.loc[r.subject_id]
+            pl = place_on_brain(((b.brain_x0, b.brain_x1), (b.brain_y0, b.brain_y1), (b.brain_z0, b.brain_z1)),
+                                tuple(args.grid))
+            how = "brain"
+        else:
+            bbox = ((r.bbox_x0, r.bbox_x1), (r.bbox_y0, r.bbox_y1), (r.bbox_z0, r.bbox_z1))
+            pl = place(bbox, tuple(args.grid), args.top_margin)
+            how = "head"
         g = torch.from_numpy(to_grid(x, pl)).to(device)[None, None]
         z = encode(model, g)
         np.save(out_dir / f"{r.subject_id}.npy", z[0].cpu().numpy().astype(np.float16))
         rec = {"subject_id": r.subject_id, "site": r.site, "site_id": r.site_id, "split": r.split,
+               "placement": how, "qc_exclude": r.subject_id in excluded,
                "offset_x": pl.offset[0], "offset_y": pl.offset[1], "offset_z": pl.offset[2],
                "head_cut_fraction": round(cut_fraction(x, pl), 5)}
         if r.subject_id in check_ids:

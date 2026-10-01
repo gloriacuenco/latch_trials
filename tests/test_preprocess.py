@@ -1,6 +1,6 @@
 import numpy as np
 
-from hdev.preprocess import Placement, cut_fraction, from_grid, head_bbox, place, resample, to_grid
+from hdev.preprocess import Placement, cut_fraction, from_grid, head_bbox, place, place_on_brain, resample, to_grid
 
 
 def sphere(shape=(60, 70, 50), centre=(30, 35, 22), radius=15):
@@ -39,3 +39,8 @@ def test_resample_round_trip_is_close():
     up = resample(x, (90, 105, 75))
     back = resample(up, x.shape)
     assert np.abs(back - x).mean() < 0.02
+
+
+def test_place_on_brain_centres_the_grid():
+    p = place_on_brain(((15, 46), (20, 51), (7, 38)), grid=(48, 48, 48))
+    assert p.offset == (6, 11, -2)

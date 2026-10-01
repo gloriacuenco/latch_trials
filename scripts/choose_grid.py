@@ -15,8 +15,23 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--index", required=True, help="index.csv from make_reference_volumes.py")
     p.add_argument("--top-margin", type=int, default=8)
+    p.add_argument("--brain-index", default=None, help="brain_index.csv: report brain boxes instead")
+    p.add_argument("--qc", default=None, help="qc_exclusions.csv: leave these scans out of the brain report")
     args = p.parse_args()
     df = pd.read_csv(args.index)
+    if args.brain_index:
+        b = pd.read_csv(args.brain_index)
+        if args.qc:
+            b = b[~b["subject_id"].isin(pd.read_csv(args.qc)["subject_id"])]
+        cols = ["brain_extent_x", "brain_extent_y", "brain_extent_z"]
+        print(f"{len(b)} scans passing QC, brain extent in mm (FastSurfer)")
+        print(b[cols].describe(percentiles=[0.5, 0.99]).round(1).to_string())
+        print("\nsmallest margin around the brain on each side (mm), grid centred on the brain:")
+        for grid in [(176, 208, 176), (192, 224, 192), (208, 240, 208)]:
+            margins = [(g - b[c].max()) / 2 for g, c in zip(grid, cols)]
+            lat = "x".join(str(g // 4) for g in grid)
+            print(f"  grid {'x'.join(map(str, grid))} (latent 4x{lat}): " + ", ".join(f"{a} {m:.0f}" for a, m in zip("xyz", margins)))
+        return
 
     print(f"{len(df)} scans, head extent in mm (RAS: x left-right, y posterior-anterior, z inferior-superior)")
     print(df[["extent_x", "extent_y", "extent_z"]].describe(percentiles=[0.5, 0.9, 0.99]).round(1).to_string())

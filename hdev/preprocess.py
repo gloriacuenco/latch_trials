@@ -93,6 +93,11 @@ def place(bbox: tuple[tuple[int, int], ...], grid: tuple[int, int, int], top_mar
     return Placement(tuple(grid), (int(ox), int(oy), int(oz)))
 
 
+def place_on_brain(brain_bbox: tuple[tuple[int, int], ...], grid: tuple[int, int, int]) -> Placement:
+    """Centre the grid on the brain box in every axis (the brain box comes from FastSurfer)."""
+    return Placement(tuple(grid), tuple(int((a + b) // 2 - g // 2) for (a, b), g in zip(brain_bbox, grid)))
+
+
 def _overlap(offset: int, size: int, length: int) -> tuple[slice, slice]:
     """Slices into (volume, grid) along one axis for a grid of ``size`` at ``offset`` in ``length``."""
     v0, v1 = max(offset, 0), min(offset + size, length)

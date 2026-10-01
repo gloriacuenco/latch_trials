@@ -1,0 +1,24 @@
+{
+  "args": {
+    "data_dir": "/home/muqsitamir/repos/HarmonIt/data",
+    "out_dir": "/home/muqsitamir/trdp2/runs/ae_fidelity_val_20261001/maisi",
+    "models": [
+      "maisi",
+      "nvmr",
+      "blur05",
+      "blur10"
+    ],
+    "split": "val",
+    "limit": null,
+    "maisi_ckpt": "/home/muqsitamir/trdp2/models/MONAI__maisi_ct_generative/models/autoencoder.pt",
+    "nvmr_ckpt": "/home/muqsitamir/trdp2/models/nvidia__NV-Generate-MR/models/autoencoder_v2.pt",
+    "hcld_root": null,
+    "hcld_ckpt": null,
+    "save_nifti": true
+  },
+  "torch": "2.5.1+cu121",
+  "gpu": "NVIDIA A100-PCIE-40GB",
+  "n_subjects": 113,
+  "reference": "RAS, robust_normalize [p1,p99]->[0,1], trilinear to 1 mm",
+  "foreground": "reference > 0.02"
+}

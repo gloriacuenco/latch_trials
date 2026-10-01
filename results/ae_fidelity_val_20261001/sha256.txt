@@ -1,0 +1,4 @@
+af58344b3a531ecda5ec3e9897c4a9ab6c1afcf2b3e84b1c7e5666b7ff2fd2ce  scripts/trdp2/ae_fidelity.py
+c772926b08a0834e3688ba10c9510df8ae7b26c4939c75d16bae513271e4d8c2  /home/muqsitamir/repos/HarmonIt/outputs/hcld_abide/adapted_hcld/aekl/checkpoints/model_latest.pt
+1f8a7a056d0ebc00486edc43c26768bf1c12eaa6df9dd172e34598003be95eb3  /home/muqsitamir/trdp2/models/MONAI__maisi_ct_generative/models/autoencoder.pt
+b5ed556dc64872cae11ebe67cc33e84fbd05ebdf7e35e40c74d956404e7c1ef0  /home/muqsitamir/trdp2/models/nvidia__NV-Generate-MR/models/autoencoder_v2.pt

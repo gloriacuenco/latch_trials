@@ -1,0 +1,22 @@
+{
+  "args": {
+    "data_dir": "/home/muqsitamir/repos/HarmonIt/data",
+    "out_dir": "/home/muqsitamir/trdp2/runs/ae_fidelity_val_20261001/hcld",
+    "models": [
+      "hcld",
+      "hcld_resize"
+    ],
+    "split": "val",
+    "limit": null,
+    "maisi_ckpt": null,
+    "nvmr_ckpt": null,
+    "hcld_root": "/home/muqsitamir/repos/HCLD",
+    "hcld_ckpt": "/home/muqsitamir/repos/HarmonIt/outputs/hcld_abide/adapted_hcld/aekl/checkpoints/model_latest.pt",
+    "save_nifti": true
+  },
+  "torch": "2.5.1+cu121",
+  "gpu": "NVIDIA A100-PCIE-40GB",
+  "n_subjects": 113,
+  "reference": "RAS, robust_normalize [p1,p99]->[0,1], trilinear to 1 mm",
+  "foreground": "reference > 0.02"
+}

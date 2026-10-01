@@ -8,16 +8,25 @@
 #SBATCH --output=logs/%x_%A_%a.out
 #SBATCH --error=logs/%x_%A_%a.err
 
-# FastSurferCNN (v2.5.4, segmentation only) on the 1 mm volumes saved by
-# scripts/ae_fidelity.py --save-nifti under RUN_DIR (<part>/nifti/<model>/<subject>.nii.gz).
-# Array task i takes every N-th volume; volumes that already have a segmentation are skipped.
+# FastSurferCNN (v2.5.4, segmentation only). Either INPUT_DIR (every *.nii.gz in it; outputs under
+# SEG_DIR/<basename of INPUT_DIR>/<subject>) or RUN_DIR (volumes saved by scripts/ae_fidelity.py
+# --save-nifti, laid out as <part>/nifti/<model>/<subject>.nii.gz). Array task i takes every N-th
+# volume; volumes that already have a segmentation are skipped.
 set -euo pipefail
-: "${RUN_DIR:?Set RUN_DIR to the ae_fidelity run}"
-SEG_DIR="${SEG_DIR:-${RUN_DIR}/fastsurfer}"
+if [ -n "${INPUT_DIR:-}" ]; then
+  SEG_DIR="${SEG_DIR:?Set SEG_DIR}"
+else
+  : "${RUN_DIR:?Set INPUT_DIR or RUN_DIR}"
+  SEG_DIR="${SEG_DIR:-${RUN_DIR}/fastsurfer}"
+fi
 FILE_LIST="${SEG_DIR}/files_${SLURM_ARRAY_JOB_ID:-0}_${SLURM_ARRAY_TASK_ID:-0}.txt"
 mkdir -p "${SEG_DIR}"
-# Inputs are saved by both parts of the run; segment the copy under hcld/ only.
-find "${RUN_DIR}" -path '*/nifti/*' -name '*.nii.gz' ! -path '*/maisi/nifti/input/*' | sort > "${FILE_LIST}"
+if [ -n "${INPUT_DIR:-}" ]; then
+  find "${INPUT_DIR}" -maxdepth 1 -name '*.nii.gz' | sort > "${FILE_LIST}"
+else
+  # Inputs are saved by both parts of the run; segment the copy under hcld/ only.
+  find "${RUN_DIR}" -path '*/nifti/*' -name '*.nii.gz' ! -path '*/maisi/nifti/input/*' | sort > "${FILE_LIST}"
+fi
 FS_DIR="${FS_DIR:-/home/muqsitamir/trdp2/tools/FastSurfer}"
 N="${SLURM_ARRAY_TASK_COUNT:-1}"
 I="${SLURM_ARRAY_TASK_ID:-0}"

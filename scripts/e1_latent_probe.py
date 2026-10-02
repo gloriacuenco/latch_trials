@@ -8,6 +8,11 @@ exclusions left out), with balanced accuracy (BA) over the 17 sites (chance 1/17
 - cnn: a small 3D CNN on the full latent, trained for a fixed number of epochs (no checkpoint is
   picked on validation), with left-right flips and small shifts as augmentation.
 
+Every probe runs twice: on the full latent, and on a central crop (``--crop`` latent voxels removed
+on each side; the grid is centred on the brain, so the crop is roughly the brain). The full latent
+also sees field of view, padding and neck cut-off, which no harmonizer should change; the central
+crop is closer to what harmonization can act on, like the audit's brain-only probes.
+
 A shuffled-label control (site labels permuted between training subjects) gives the BA expected by
 chance. These numbers are the baseline the flow has to bring down; the same probes are rerun on
 transported latents in E2.
@@ -55,10 +60,11 @@ class Probe(nn.Module):
 
 
 def augment(z: torch.Tensor, rng: np.random.Generator) -> torch.Tensor:
+    """One latent [C, X, Y, Z]: random left-right flip and a shift of up to 2 latent voxels."""
     if rng.random() < 0.5:
-        z = z.flip(2)  # left-right
+        z = z.flip(1)
     shifts = tuple(int(s) for s in rng.integers(-2, 3, size=3))
-    return torch.roll(z, shifts=shifts, dims=(2, 3, 4))
+    return torch.roll(z, shifts=shifts, dims=(1, 2, 3))
 
 
 def train_cnn(xtr, ytr, xva, n_sites, seed, epochs, device) -> np.ndarray:
@@ -96,6 +102,7 @@ def main() -> None:
     p.add_argument("--out", required=True, help="JSON results file")
     p.add_argument("--seeds", nargs="+", type=int, default=[0, 1, 2])
     p.add_argument("--epochs", type=int, default=60)
+    p.add_argument("--crop", type=int, default=6, help="Latent voxels removed per side for the central crop (6 = 24 mm).")
     args = p.parse_args()
     device = torch.device("cuda")
 
@@ -107,23 +114,24 @@ def main() -> None:
     res = {"latent_dir": str(args.latent_dir), "n_train": int(tr.sum()), "n_val": int(va.sum()),
            "chance": 1 / n_sites, "sites": sites}
 
-    feats = coarse_features(x)
-    lin = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, C=0.1, class_weight="balanced"))
-    lin.fit(feats[tr], y[tr])
-    res["linear_ba"] = balanced_accuracy_score(y[va], lin.predict(feats[va]))
-    print(f"linear probe BA {res['linear_ba']:.3f}", flush=True)
-
-    for name, shuffle in (("cnn", False), ("cnn_shuffled", True)):
-        bas, cm = [], np.zeros((n_sites, n_sites), dtype=int)
-        for seed in args.seeds:
-            ytr = np.random.default_rng(100 + seed).permutation(y[tr]) if shuffle else y[tr]
-            pred = train_cnn(x[tr], ytr, x[va], n_sites, seed, args.epochs, device)
-            bas.append(balanced_accuracy_score(y[va], pred))
-            cm += confusion_matrix(y[va], pred, labels=list(range(n_sites)))
-            print(f"{name} seed {seed} BA {bas[-1]:.3f}", flush=True)
-        res[f"{name}_ba"] = bas
-        res[f"{name}_ba_mean"] = float(np.mean(bas))
-        res[f"{name}_confusion"] = cm.tolist()
+    c = args.crop
+    for view, xv in (("full", x), ("central", x[:, :, c:-c, c:-c, c:-c])):
+        feats = coarse_features(xv)
+        lin = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, C=0.1, class_weight="balanced"))
+        lin.fit(feats[tr], y[tr])
+        res[f"{view}_linear_ba"] = balanced_accuracy_score(y[va], lin.predict(feats[va]))
+        print(f"{view} linear probe BA {res[f'{view}_linear_ba']:.3f}", flush=True)
+        for name, shuffle in (("cnn", False), ("cnn_shuffled", True)):
+            bas, cm = [], np.zeros((n_sites, n_sites), dtype=int)
+            for seed in args.seeds:
+                ytr = np.random.default_rng(100 + seed).permutation(y[tr]) if shuffle else y[tr]
+                pred = train_cnn(xv[tr], ytr, xv[va], n_sites, seed, args.epochs, device)
+                bas.append(balanced_accuracy_score(y[va], pred))
+                cm += confusion_matrix(y[va], pred, labels=list(range(n_sites)))
+                print(f"{view} {name} seed {seed} BA {bas[-1]:.3f}", flush=True)
+            res[f"{view}_{name}_ba"] = bas
+            res[f"{view}_{name}_ba_mean"] = float(np.mean(bas))
+            res[f"{view}_{name}_confusion"] = cm.tolist()
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(res, indent=2))
 

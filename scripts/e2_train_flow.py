@@ -87,6 +87,10 @@ def main() -> None:
     t0 = time.time()
     plan = make_coupling(args.coupling, z[src_tr].astype(np.float32), z[tgt_tr].astype(np.float32),
                          feats[src_tr], feats[tgt_tr], args.eps)
+    if not torch.isfinite(plan).all():
+        raise SystemExit("coupling has non-finite entries; raise --eps")
+    plan_np = plan.double().numpy()
+    plan_np /= plan_np.sum(1, keepdims=True)
     eff_partners = float(torch.exp(-(plan * torch.log(plan + 1e-12)).sum(1)).mean())
     print(f"coupling {args.coupling}: {time.time() - t0:.0f} s, about {eff_partners:.1f} likely partners per source scan", flush=True)
     sites_tr = meta["site_id"].to_numpy()[src_tr]
@@ -115,7 +119,7 @@ def main() -> None:
         sites = rng.choice(list(by_site), size=args.batch)
         rows = np.array([rng.choice(by_site[s]) for s in sites])
         # 2. NYU partners drawn from the coupling
-        partners = np.array([rng.choice(len(tgt_tr), p=plan[r].numpy().astype(np.float64) / plan[r].sum().item()) for r in rows])
+        partners = np.array([rng.choice(len(tgt_tr), p=plan_np[r]) for r in rows])
         z0, z1 = batch_tensor(src_tr[rows]), batch_tensor(tgt_tr[partners])
         site = torch.from_numpy(meta["site_id"].to_numpy()[src_tr[rows]]).to(device)
         site = torch.where(torch.rand(args.batch, device=device) < args.label_dropout, torch.full_like(site, n_sites), site)

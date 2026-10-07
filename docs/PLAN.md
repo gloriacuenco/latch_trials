@@ -1,4 +1,4 @@
-# HarmonIt method: plan
+# LATCH: plan
 
 Updated 2026-10-01.
 

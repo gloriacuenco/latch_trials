@@ -9,7 +9,7 @@
 
 # E0 step 1: every ABIDE I scan in the 1 mm reference space, plus index.csv (scripts/make_reference_volumes.py).
 set -euo pipefail
-CODE_DIR="${CODE_DIR:-$HOME/repos/harmonit-dev}"
+CODE_DIR="${CODE_DIR:-$HOME/repos/latch}"
 PYTHON="${PYTHON:-$HOME/envs/trdp2_ae/bin/python}"
 DATA_DIR="${DATA_DIR:?Set DATA_DIR (abide_manifest.csv, splits.json, ABIDE/)}"
 OUT_DIR="${OUT_DIR:?Set OUT_DIR}"

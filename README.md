@@ -1,10 +1,13 @@
-# harmonit-dev
+# LATCH
 
-Private development of the HarmonIt harmonization method (TRDP2). The public
-[HarmonIt](https://github.com/muqsitamir/HarmonIt) repository holds the ISBI 2027 evaluation audit
-and stays frozen at the tag `isbi2027-submission`. Finished, cleaned code from here is merged
-into HarmonIt as a tagged release when the method paper is submitted; until then this repository
-stays private.
+**Latent Anatomy-preserving Transport for Cross-site Harmonization.** Private development of our
+MRI harmonization method (TRDP2). It moves a scan's latent, in a frozen pretrained 3D autoencoder,
+from its acquisition site toward a reference site (NYU) with a flow, while keeping the anatomy.
+
+The public [HarmonIt](https://github.com/muqsitamir/HarmonIt) repository holds the ISBI 2027
+evaluation audit and stays frozen at the tag `isbi2027-submission`; it is also the evaluation
+LATCH is judged by. This repository stays private until the method paper is submitted, then goes
+public with it.
 
 Plan and decisions: [docs/PLAN.md](docs/PLAN.md).
 

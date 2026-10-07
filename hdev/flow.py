@@ -1,4 +1,4 @@
-"""The HarmonIt flow: a site-conditioned velocity field in the latent space of a frozen VAE.
+"""The LATCH flow: a site-conditioned velocity field in the latent space of a frozen VAE.
 
 Pieces, in the order the training script uses them:
 

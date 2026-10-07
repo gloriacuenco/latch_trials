@@ -9,7 +9,7 @@
 
 # E0 step 2: brain boxes and anatomy features from FastSurfer (scripts/brain_index.py).
 set -euo pipefail
-CODE_DIR="${CODE_DIR:-$HOME/repos/harmonit-dev}"
+CODE_DIR="${CODE_DIR:-$HOME/repos/latch}"
 PYTHON="${PYTHON:-$HOME/envs/trdp2_ae/bin/python}"
 D="${DATA_ROOT:-$HOME/trdp2/data}"
 cd "${CODE_DIR}"

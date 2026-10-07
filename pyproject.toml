@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "harmonit-dev"
+name = "latch"
 version = "0.0.1"
-description = "Development of the HarmonIt harmonization method"
+description = "LATCH: Latent Anatomy-preserving Transport for Cross-site Harmonization"
 requires-python = ">=3.11"
 
 [tool.setuptools.packages.find]

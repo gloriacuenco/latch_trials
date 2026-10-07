@@ -13,7 +13,7 @@
 # importable: pip-installed, or HARMONIT_SRC pointing at its src/. The HCLD autoencoder needs
 # the hcld conda env (MONAI 1.3 + generative); MAISI/NV-Generate-MR need MONAI 1.5.
 set -euo pipefail
-CODE_DIR="${CODE_DIR:-/home/muqsitamir/repos/harmonit-dev}"
+CODE_DIR="${CODE_DIR:-/home/muqsitamir/repos/latch}"
 DATA_DIR="${DATA_DIR:-/home/muqsitamir/repos/HarmonIt/data}"
 MODEL_DIR="${MODEL_DIR:-/home/muqsitamir/trdp2/models}"
 HCLD_CKPT="${HCLD_CKPT:-/home/muqsitamir/repos/HarmonIt/outputs/hcld_abide/adapted_hcld/aekl/checkpoints/model_latest.pt}"

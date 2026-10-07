@@ -1,4 +1,4 @@
-"""E2: train the HarmonIt flow on one VAE's latents with one coupling.
+"""E2: train the LATCH flow on one VAE's latents with one coupling.
 
 Data: the training latents minus QC exclusions; sources are the 16 non-NYU sites, the target is NYU.
 

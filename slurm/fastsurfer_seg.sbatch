@@ -27,10 +27,12 @@ else
   # Inputs are saved by both parts of the run; segment the copy under hcld/ only.
   find "${RUN_DIR}" -path '*/nifti/*' -name '*.nii.gz' ! -path '*/maisi/nifti/input/*' | sort > "${FILE_LIST}"
 fi
+# FastSurfer install and environment: cl defaults; on vpulab FS_DIR=/home/mmi/tools/FastSurfer FS_ENV=/home/mmi/envs/fastsurfer.
 FS_DIR="${FS_DIR:-/home/muqsitamir/trdp2/tools/FastSurfer}"
+FS_ENV="${FS_ENV:-/home/muqsitamir/envs/fastsurfer}"
 N="${SLURM_ARRAY_TASK_COUNT:-1}"
 I="${SLURM_ARRAY_TASK_ID:-0}"
-source /home/muqsitamir/envs/fastsurfer/bin/activate
+source "${FS_ENV}/bin/activate"
 export PYTHONPATH="${FS_DIR}"
 cd "${FS_DIR}"
 nvidia-smi --query-gpu=name --format=csv,noheader

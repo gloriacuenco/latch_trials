@@ -15,3 +15,4 @@ checkpoints/
 *.pt
 *.pth
 *.ckpt
+*.egg-info/

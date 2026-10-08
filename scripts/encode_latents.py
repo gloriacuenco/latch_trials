@@ -43,6 +43,8 @@ def main() -> None:
     device = torch.device("cuda")
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    if any(out_dir.iterdir()):
+        raise SystemExit("Use a new empty output directory; do not mix sampled and posterior-mean caches.")
     df = pd.read_csv(args.index)
     if args.limit:
         df = df.head(args.limit)
@@ -85,6 +87,7 @@ def main() -> None:
     pd.DataFrame(rows).to_csv(out_dir / "index.csv", index=False)
     (out_dir / "run.json").write_text(json.dumps({
         "args": vars(args), "torch": torch.__version__, "gpu": torch.cuda.get_device_name(),
+        "encoding": "posterior_mean", "monai": __import__("monai").__version__,
         "latent_shape": [4] + [g // 4 for g in args.grid], "dtype": "float16",
     }, indent=2))
 

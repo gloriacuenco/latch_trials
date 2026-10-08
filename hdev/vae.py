@@ -44,8 +44,9 @@ def load_vae(name: str, ckpt: str, device: torch.device) -> torch.nn.Module:
 @torch.no_grad()
 def encode(model: torch.nn.Module, x: torch.Tensor) -> torch.Tensor:
     """[B, 1, X, Y, Z] in [0, 1] -> [B, 4, X/4, Y/4, Z/4] (posterior mean, float32)."""
-    with torch.autocast("cuda", dtype=torch.float16):
-        z = model.encode_stage_2_inputs(x)
+    # MONAI 1.5.1 encode_stage_2_inputs samples; eval() does not disable it.
+    with torch.autocast("cuda", dtype=torch.float16, enabled=x.is_cuda):
+        z, _ = model.encode(x)
     return z.float()
 
 

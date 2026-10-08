@@ -21,7 +21,6 @@ import torch.nn.functional as F
 from scipy import ndimage
 
 # Preprocessing shared with the ISBI 2027 audit (HarmonIt, tag isbi2027-submission).
-from harmonit.data.abide_slices_dataset import robust_normalize
 
 HEAD_THR = 0.02
 
@@ -43,6 +42,8 @@ def resample(vol: np.ndarray, shape: tuple[int, int, int]) -> np.ndarray:
 
 
 def load_reference(t1_path: str | Path) -> Reference:
+    from harmonit.data.abide_slices_dataset import robust_normalize
+
     img = nib.as_closest_canonical(nib.load(str(t1_path)))
     vol = robust_normalize(img.get_fdata(dtype=np.float32))
     zooms = tuple(float(z) for z in img.header.get_zooms()[:3])

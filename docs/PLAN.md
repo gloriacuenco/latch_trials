@@ -1,23 +1,37 @@
 # LATCH: plan
 
-Updated 2026-10-15.
+Updated 2026-10-19.
 
 ## Direction
 
-Harmonize with the smallest change that reaches the target site. A frozen pretrained 3D VAE maps
-each T1 volume to a latent; a site-conditioned flow, trained by flow matching with
-optimal-transport pairing, moves the latent from the source site toward NYU; the decoder returns
-the harmonized volume, which is put back on the scan's own grid and judged with the ISBI 2027
-audit protocol.
+A frozen pretrained 3D VAE maps each T1 volume to a latent; a model working on the latent makes it
+look like NYU; the decoder returns the harmonized volume, which is put back on the scan's own grid
+and judged with the ISBI 2027 audit protocol.
 
-**Proposed element: anatomy-matched pairing.** Flow matching learns from (source scan, NYU scan)
-pairs. Without travelling subjects these are different people, so the flow can learn to change
-anatomy. The hypothesis is that pairing source scans with NYU scans of similar anatomy (FastSurfer
-regional volumes, age, sex) reduces anatomical differences within pairs: approximate
-pseudo-travelling subjects from unpaired data. The six-condition pilot does not show a preservation
-advantage for this pairing. A first search found no prior use for unpaired multi-site harmonization; a
-full literature check comes before writing. Training with the source-site label sometimes dropped
-should also let the flow harmonize scans from unseen sites.
+**E2 (done): a deterministic flow cannot remove the site.** A site-conditioned flow, trained by flow
+matching, transports each source latent to NYU. With the anatomy-consistency term it keeps anatomy
+(FastSurfer Dice 0.80) and fools a frozen probe completely, but probes trained on its outputs still
+find the site (0.93-0.97). An ODE flow is invertible, so its output carries everything about the
+source; it can only move site information where a frozen probe does not look. Anatomy-matched
+pairing (pseudo-travelling subjects) gave no preservation advantage over random pairing.
+
+**E3 (now): regenerate the scan as NYU from its own anatomy** (`hdev/regen.py`). A generator
+learns, on all 17 sites, to turn noise into a latent given the scan's site and its FastSurfer
+tissue-fraction maps. To harmonize, part of the source latent is replaced by noise and the generator
+re-draws it as NYU with the source's anatomy maps and the anatomy-consistency term. The noise
+destroys site detail for good; what comes back is NYU's look on this scan's anatomy. One knob, the
+share of the source kept, trades site removal against faithfulness, so the result is a curve. At
+zero kept, the only site information left is what the anatomy maps carry (about 0.58 by the E1
+anatomy probe), which bounds what any anatomy-preserving method should reach.
+
+Closest prior work (to check in full before writing): HCLD (Wu et al., MedIA 2025, 3D conditional
+latent diffusion, an audit baseline); UMH (MICCAI 2025, two-stage latent diffusion whose fine stage
+noises partway and denoises to the target style); SGCD (semantic-guided conditional diffusion);
+IHF-Harmony 2026 (an invertible flow); CALAMITI (information-bottleneck disentangling). None
+conditions generation on segmentation maps, reports the site/anatomy trade-off over the noise level,
+or evaluates against output-trained probes. Partial noising alone is not new; the contribution is
+anatomy-conditioned regeneration with that trade-off and the invertibility argument, which also
+explains the audit's finding.
 
 Why this direction (from the audit): probes trained on harmonized outputs still decoded the site
 for every method tested (brain-only 0.74-0.91 against 0.52-0.54 from brain masks alone); the only
@@ -50,39 +64,19 @@ adapters for 3D brain foundation models, scored on OpenBHB.
 
 | Step | Question | What runs | Status |
 | --- | --- | --- | --- |
-| E0 | Data ready for the flow | Reference volumes; grid size; latents with both VAEs; FastSurfer on all 1,112 scans | Complete on cl/vpulab |
-| E1 | How much site is in the latents? | Site probe on latents | Complete; linear BA 1.00 for both VAEs |
-| E2a | Which autoencoder? | One latent-OT flow per VAE, compared on validation | Pending |
-| E2b | Does anatomy-matched pairing help? | Random / latent-OT / anatomy-OT, each with anatomy weight 0 / 1 | Six-condition 10k-step pilot complete and verified; longer runs and multiple seeds pending |
-| E3 | Final comparison | ISBI test slices, once, against the ten audited outputs | |
+| E0 | Data ready | Reference volumes; grid size; latents with both VAEs; FastSurfer on all 1,112 scans | Done |
+| E1 | How much site is in the latents? | Site probe on latents | Done: linear BA 1.00 for both VAEs; anatomy alone 0.58 |
+| E2 | Can a deterministic flow remove the site? | Random / latent-OT / anatomy-OT pairing x anatomy term off / on (`results/e2_pairing_ablation_20261014`) | Done (10k-step pilots): anatomy term Dice 0.58-0.60 -> 0.80-0.81; site BA 0.93-0.97 everywhere |
+| E3 | Does regeneration remove it? | Regenerator pilot (20k steps, NV-Generate-MR); keep 0.3 / 0.5 / 0.7; probes, PSNR, W1, FastSurfer | Code in review |
+| E4 | Final comparison | ISBI test slices, once, against the ten audited outputs | |
 
-The two existing NV-Generate-MR anatomy-pairing pilots each ran for 10,000 steps with seed 0.
-Against the input's FastSurfer segmentation on 92 source-validation volumes: no anatomy term
-gave Dice 0.58 and median volume change 13.6%; anatomy weight 1 gave Dice 0.80 and 6.4%.
-Output-trained latent site probes remained high (0.95 and 0.93); foreground-intensity distance
-closed toward NYU was 24% and 16%. These are pilot validation results, not final test evidence.
-
-The completed comparison (`results/e2_pairing_ablation_20261014`) adds four random/latent conditions
-under the same settings and cached latents. All six share the exact 92 source-validation subjects
-and complete FastSurfer outputs. Anatomy consistency raises Dice from 0.581-0.599 to 0.798-0.807
-across all pairings; anatomy pairing does not lead preservation at either loss setting. Latent OT
-with the loss has the highest Dice (0.807) and lowest regional-volume change (6.0%). Anatomy OT
-with the loss has the lowest output-trained site BA (0.926), but the least NYU intensity distance
-closed among loss-enabled runs (16.1%, versus 18.3-19.4%). Site BA stays 0.926-0.970 across all
-conditions: the central site-removal problem remains.
-
-The updated progress report is `output/pdf/LATCH Progress Report - Updated.pdf`. Small results and
-verification are versionable in the results folder; the frozen source, hashes, and large artifacts
-stay at `/mnt/rhome/mmi/projects/harmonit-data/e2/pairing_ablation_20261014`. These are single-seed
-validation pilots, not final test evidence. Confirm the pairing effect with longer runs and multiple
-seeds; then investigate a term targeting recoverable site information. A weight sweep (3 and 10)
-and a matched MAISI comparison remain pending. Resolve posterior-mean encoding/repeatability in
-a separate controlled change, without altering the cache used for this ablation.
+E3 then needs: site guidance (>1) as a second knob; a seed spread (outputs depend on the noise);
+the autoencoder choice (MAISI); and re-encoding with the posterior mean (`gloria/e0-encoding-check`)
+before final runs. Until then all E2 and E3 runs share the current cache, so they compare directly.
 
 Later: a whole-volume comparison (2D baselines applied slice by slice with their existing
 checkpoints; HCLD and IGUANe natively), the only evidence for a 3D claim, and a test on unseen
-sites (ABIDE II), which keeps the work from being single-dataset. Open: compare the direct bridge
-with the inversion route, or start with the bridge only.
+sites (ABIDE II), which keeps the work from being single-dataset.
 
 ## Where things run
 

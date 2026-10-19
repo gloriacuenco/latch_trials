@@ -1,0 +1,71 @@
+{
+  "status": "complete",
+  "started_at": "2026-10-14T19:13:26.169597+00:00",
+  "updated_at": "2026-10-15T06:17:48.524029+00:00",
+  "protocol": {
+    "steps": 10000,
+    "batch": 4,
+    "lr": 0.0001,
+    "label_dropout": 0.1,
+    "ema": 0.999,
+    "channels": [
+      64,
+      128,
+      256
+    ],
+    "val_every": 1000,
+    "ode_steps": 20,
+    "seed": 0,
+    "eps": 0.05
+  },
+  "n_val_source": 92,
+  "n_probe_train": 870,
+  "n_probe_val": 110,
+  "n_sites_probe": 17,
+  "vae": "nvmr",
+  "test_used": false,
+  "code_root": "/mnt/rhome/mmi/projects/harmonit-data/e2/pairing_ablation_20261014/code",
+  "data_root": "/mnt/rhome/mmi/projects/harmonit-data",
+  "conditions": {
+    "anatomy_weight0": {
+      "stage": "complete",
+      "completed_at": "2026-10-14T19:14:10.306621+00:00",
+      "reused_pilot": true,
+      "run": "/mnt/rhome/mmi/projects/harmonit-data/e2/pilot_anatomy_nvmr"
+    },
+    "anatomy_weight1": {
+      "stage": "complete",
+      "completed_at": "2026-10-14T19:14:10.399282+00:00",
+      "reused_pilot": true,
+      "run": "/mnt/rhome/mmi/projects/harmonit-data/e2/pilot_anatomy_term_nvmr"
+    },
+    "random_weight0": {
+      "stage": "complete",
+      "completed_at": "2026-10-14T21:59:51.208953+00:00",
+      "reused_pilot": false,
+      "run": "/mnt/rhome/mmi/projects/harmonit-data/e2/pairing_ablation_20261014/random_weight0"
+    },
+    "random_weight1": {
+      "stage": "complete",
+      "completed_at": "2026-10-15T00:50:17.497385+00:00",
+      "reused_pilot": false,
+      "run": "/mnt/rhome/mmi/projects/harmonit-data/e2/pairing_ablation_20261014/random_weight1"
+    },
+    "latent_weight0": {
+      "stage": "complete",
+      "completed_at": "2026-10-15T03:29:55.488676+00:00",
+      "reused_pilot": false,
+      "run": "/mnt/rhome/mmi/projects/harmonit-data/e2/pairing_ablation_20261014/latent_weight0"
+    },
+    "latent_weight1": {
+      "stage": "complete",
+      "completed_at": "2026-10-15T06:17:48.432398+00:00",
+      "reused_pilot": false,
+      "run": "/mnt/rhome/mmi/projects/harmonit-data/e2/pairing_ablation_20261014/latent_weight1"
+    }
+  },
+  "note": "Single-seed 10,000-step pilot ablation; cached sampled latents held fixed across conditions.",
+  "current_condition": "latent_weight1",
+  "current_stage": "complete",
+  "completed_at": "2026-10-15T06:17:48.524015+00:00"
+}

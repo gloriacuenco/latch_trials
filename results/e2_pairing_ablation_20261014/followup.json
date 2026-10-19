@@ -1,0 +1,9 @@
+{
+  "automation_id": "finish-latch-comparison-and-report",
+  "remote_host": "vpulab",
+  "remote_run": "/mnt/rhome/mmi/projects/harmonit-data/e2/pairing_ablation_20261014",
+  "source_report": "/Users/apple/PycharmProjects/harmonit-dev/runs/e2_pairing_ablation_20261014/source_report.pdf",
+  "output_report": "/Users/apple/PycharmProjects/harmonit-dev/output/pdf/LATCH Progress Report - Updated.pdf",
+  "automation_status": "PAUSED",
+  "task_status": "complete"
+}

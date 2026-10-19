@@ -1,0 +1,50 @@
+{
+  "verified_on": "2026-10-15",
+  "status": "passed",
+  "cohort": {
+    "train": 870,
+    "source_train": 723,
+    "nyu_train": 147,
+    "probe_validation": 110,
+    "probe_sites": 17,
+    "decoded_source_validation": 92,
+    "frozen_probe_validation": 92,
+    "frozen_probe_sites": 16
+  },
+  "checks": [
+    "All six configuration files match the protocol, except intended coupling/anatomy-weight differences",
+    "Per-subject image and segmentation CSVs contain exactly the same 92 unique eligible source-validation IDs",
+    "Dice, cortical Dice, volume change and PSNR medians independently recomputed from per-subject files",
+    "NYU distance closed independently recomputed from per-subject W1 medians",
+    "All reported numeric results finite and consistent with per-condition summaries",
+    "Frozen source snapshot and latent index SHA-256 hashes match provenance",
+    "All six sets of 92 harmonized NIfTIs present on vpulab",
+    "Original pilot-1 segmentations checked separately on cl; remaining segmentations checked on vpulab"
+  ],
+  "test_scans_used": false,
+  "metadata_note": "comparison.json protocol refreshed from final canonical status.json; metrics unchanged. Original pre-completion protocol snapshot preserved under runs/e2_pairing_ablation_20261014/comparison_as_written.json.",
+  "report": {
+    "pages": 16,
+    "path": "output/pdf/LATCH Progress Report - Updated.pdf",
+    "sha256": "2417d12cddf893c46e44826354e5c086b6f9b1f523bfbb753804926315c790c5",
+    "changed_pages_visually_checked": [
+      1,
+      2,
+      4,
+      7,
+      11,
+      13,
+      14,
+      15,
+      16
+    ],
+    "all_pages_rendered": true,
+    "source_original_preserved": true,
+    "source_sha256": "0ea8e28bc337c8612fb3c735b436ca2eb9e216c4aea82ca42fd97afb1ecf1542",
+    "removed_slides_from_previous_report": [
+      17,
+      18
+    ],
+    "remaining_slide_text_unchanged": true
+  }
+}

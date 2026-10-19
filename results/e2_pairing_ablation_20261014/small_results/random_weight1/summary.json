@@ -1,0 +1,17 @@
+{
+  "checkpoint": "/mnt/rhome/mmi/projects/harmonit-data/e2/pairing_ablation_20261014/random_weight1/checkpoints/latest.pt",
+  "step": 10000,
+  "coupling": "random",
+  "latent_moved_val": 0.11104766279459,
+  "probe_before": 1.0,
+  "probe_frozen": 0.0125,
+  "frozen_predicts_nyu": 0.967391304347826,
+  "probe_output_trained": 0.968627450980392,
+  "median_psnr_harmonized": 14.900214320583867,
+  "median_psnr_reconstruction": 25.715150854970464,
+  "median_w1_nyu_input": 0.08448158826997065,
+  "median_w1_nyu_reconstruction": 0.08547791600370826,
+  "median_w1_nyu_harmonized": 0.06805235131053711,
+  "median_delta_w1_nyu": -0.010628694935726254,
+  "share_of_distance_closed": 0.194471213146846
+}

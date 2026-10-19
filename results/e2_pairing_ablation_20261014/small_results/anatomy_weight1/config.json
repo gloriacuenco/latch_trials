@@ -1,0 +1,27 @@
+{
+  "latent_dir": "/mnt/rhome/mmi/projects/harmonit-data/latents_nvmr",
+  "brain_index": "results/e0_data/brain_index.csv",
+  "coupling": "anatomy",
+  "eps": 0.05,
+  "steps": 10000,
+  "batch": 4,
+  "lr": 0.0001,
+  "label_dropout": 0.1,
+  "ema": 0.999,
+  "channels": [
+    64,
+    128,
+    256
+  ],
+  "val_every": 1000,
+  "ode_steps": 20,
+  "seed": 0,
+  "anatomy_net": "/mnt/rhome/mmi/projects/harmonit-data/anatomy_net/nvmr.pt",
+  "labels_dir": "/mnt/rhome/mmi/projects/harmonit-data/anatomy_labels",
+  "anatomy_weight": 1.0,
+  "out_dir": "/mnt/rhome/mmi/projects/harmonit-data/e2/pilot_anatomy_term_nvmr",
+  "n_sites": 17,
+  "partners": 10.259774208068848,
+  "n_src_train": 723,
+  "n_tgt_train": 147
+}

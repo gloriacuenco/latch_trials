@@ -1,0 +1,17 @@
+{
+  "checkpoint": "/mnt/rhome/mmi/projects/harmonit-data/e2/pilot_anatomy_term_nvmr/checkpoints/latest.pt",
+  "step": 10000,
+  "coupling": "anatomy",
+  "latent_moved_val": 0.11816400289535522,
+  "probe_before": 1.0,
+  "probe_frozen": 0.0,
+  "frozen_predicts_nyu": 1.0,
+  "probe_output_trained": 0.9264705882352942,
+  "median_psnr_harmonized": 14.795863426010849,
+  "median_psnr_reconstruction": 25.715150854970464,
+  "median_w1_nyu_input": 0.08448158826997065,
+  "median_w1_nyu_reconstruction": 0.08547791600370826,
+  "median_w1_nyu_harmonized": 0.0709093460766829,
+  "median_delta_w1_nyu": -0.011339463643561023,
+  "share_of_distance_closed": 0.16065325559358679
+}

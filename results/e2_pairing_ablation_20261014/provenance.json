@@ -1,0 +1,18 @@
+{
+  "created_at": "2026-10-14T19:13:26.170003+00:00",
+  "commit": "53a649b0ccb3a4d0c9ed7121756bc065781b17d8",
+  "source_sha256": {
+    "hdev/flow.py": "9c687c51dd7bbb5158f442487ff5514c667ee2f47698816a209ff76a253197d1",
+    "hdev/anatomy.py": "1182190679c4cc7f4b4f06d709750bc4bc3ef7f840b079ae10c3832f6f595642",
+    "hdev/vae.py": "9e4609ddb0a986eb40352880dc40a1de96f38e1daa9b6a990bc8aaf7ee81a34c",
+    "scripts/e2_train_flow.py": "6e97bccf441a5e65d5487cd298a1bdd724b63f53eba668d90cde973a01654fc6",
+    "scripts/e2_eval_flow.py": "2f4c008a42523641e441f12f1ff4d4b556031a20758d5c976e7d50b9e8333ccd",
+    "scripts/seg_agreement.py": "880765e341b6853a7c0e716b38907d15207e8c0137a57536d890ed2c91c04de4",
+    "slurm/fastsurfer_seg.sbatch": "d200642113bec18bfd6f0db4cc9be084be9d971ad76bbdfb8cce6ee87c5b23b8",
+    "results/e0_data/brain_index.csv": "9dbd6f4e2250b1750d88caee785316e9b79cac2fd673f2a752c85624f49fd1c9",
+    "results/e0_data/qc_exclusions.csv": "c92cd877b31870e074a45eb7ed0c3432ca42486cb8569d405988a0793915c5df"
+  },
+  "latent_index_sha256": "04f25511d49512f804c393a5ca2c4933540636aa2e6096a78f9fb8164578bcfc",
+  "anatomy_reader_sha256": "e6b8c44efae07a32bc84eb21b3618eaafe5c3552463be451fb3c9b52db317248",
+  "vae_weights_sha256": "b5ed556dc64872cae11ebe67cc33e84fbd05ebdf7e35e40c74d956404e7c1ef0"
+}

@@ -16,12 +16,18 @@ Pieces:
    t = keep), then run the generator from t = keep to 1 as NYU, with the source's anatomy maps.
    keep = 1 returns the input; keep = 0 draws a new NYU scan from the anatomy maps alone. In between,
    ``keep`` trades site removal against faithfulness to the input.
+3. Coarse/fine split (``fine_scale`` > 0): the site lives mostly in the coarse part of a latent
+   (regional brightness and contrast), which survives noise; the subject's own detail lives in the
+   fine part. At every step the fine part of the drawing is replaced by the source's fine part,
+   noised to that step, so the generator re-draws only the coarse part, as NYU, from the anatomy
+   maps. ``fine_scale`` is the blur size in latent voxels (4 mm each) that separates the two.
 """
 
 from __future__ import annotations
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from hdev.anatomy import CLASSES
 
@@ -57,11 +63,19 @@ def guided(net: RegenNet, z: torch.Tensor, t: torch.Tensor, site: torch.Tensor, 
     return v_unknown + guidance * (v - v_unknown)
 
 
+def coarse_part(z: torch.Tensor, scale: int) -> torch.Tensor:
+    """Low-pass a latent [B, C, X, Y, Z]: average over blocks of ``scale`` voxels, then interpolate back."""
+    small = F.adaptive_avg_pool3d(z, [max(1, n // scale) for n in z.shape[2:]])
+    return F.interpolate(small, size=z.shape[2:], mode="trilinear", align_corners=False)
+
+
 @torch.no_grad()
 def regenerate(net: RegenNet, z_src: torch.Tensor, noise: torch.Tensor, site: torch.Tensor,
-               anatomy: torch.Tensor, keep: float, steps: int = 20, guidance: float = 1.0) -> torch.Tensor:
+               anatomy: torch.Tensor, keep: float, steps: int = 20, guidance: float = 1.0,
+               fine_scale: int = 0) -> torch.Tensor:
     """Noise the source to t = keep, then integrate dz/dt = v from t = keep to 1 (midpoint rule,
-    ``steps`` steps over that interval) as ``site`` with the source's anatomy maps."""
+    ``steps`` steps over that interval) as ``site`` with the source's anatomy maps. With
+    ``fine_scale`` > 0, the fine part is reset to the noised source's after every step."""
     z = keep * z_src + (1 - keep) * noise
     ts = torch.linspace(keep, 1.0, steps + 1)
     for t0, t1 in zip(ts[:-1], ts[1:]):
@@ -70,4 +84,7 @@ def regenerate(net: RegenNet, z_src: torch.Tensor, noise: torch.Tensor, site: to
         k1 = guided(net, z, tt, site, anatomy, guidance)
         k2 = guided(net, z + 0.5 * h * k1, tt + 0.5 * h, site, anatomy, guidance)
         z = z + h * k2
+        if fine_scale > 0:
+            ref = float(t1) * z_src + (1 - float(t1)) * noise  # the source on the same noise path
+            z = coarse_part(z, fine_scale) + (ref - coarse_part(ref, fine_scale))
     return z

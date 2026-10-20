@@ -1,6 +1,7 @@
-"""E3 evaluation of a trained regenerator, on the validation split only, at several ``--keep`` levels.
+"""E3 evaluation of a trained regenerator, on the validation split only, at several settings.
 
-For each keep level (share of the source latent kept; the rest is noise):
+Settings: ``--keep`` levels (share of the source latent kept; the rest is noise) and ``--fine-scale``
+blur sizes (coarse/fine split, starting from noise; see hdev/regen.py). For each setting:
 1. Regenerate every training and validation scan as NYU, NYU scans included, so every scan has been
    through the same process (a user would harmonize the whole dataset). Each scan gets the same noise
    at every keep level, so differences between levels come from ``keep`` alone.
@@ -10,12 +11,13 @@ For each keep level (share of the source latent kept; the rest is noise):
    - output-trained: trained on regenerated training latents, tested on regenerated validation ones
      (the audit's real test, in latent space);
    - output-trained, NYU original: the same, but NYU scans left as they are (E2's protocol, so the
-     numbers compare directly with the E2 pilots).
+     numbers compare directly with the E2 pilots);
+   - each also with the ``fine`` features (detail energy), which see site left in the fine part.
 3. Decoded validation source volumes (the same 92 as E2), put back on each scan's grid, compared with
    the input (PSNR) and with NYU (Wasserstein-1 distance of foreground intensities to the NYU training
    reference). The plain reconstruction is not repeated: it is the same latents as E2.
 
-``--save-nifti`` writes the harmonized 1 mm volumes as ``nifti/keep_<k>/<subject>.nii.gz`` and, with
+``--save-nifti`` writes the harmonized 1 mm volumes as ``nifti/<setting>/<subject>.nii.gz`` and, with
 ``--ref-seg-dir``, links the input segmentations as ``fastsurfer/input/<subject>`` so FastSurfer
 (slurm/fastsurfer_seg.sbatch, INPUT_DIR mode, SEG_DIR=<out>/fastsurfer) and scripts/seg_agreement.py
 can run on the result directly.
@@ -37,7 +39,7 @@ from hdev.flow import LatentStats
 from hdev.latents import load_latents
 from hdev.metrics import FG_THR, psnr_fg, quantile_profile, w1
 from hdev.preprocess import Placement, from_grid
-from hdev.probes import coarse, probe
+from hdev.probes import coarse, fine, probe
 from hdev.regen import RegenNet, regenerate
 from hdev.vae import decode, load_vae
 
@@ -53,7 +55,8 @@ def main() -> None:
     p.add_argument("--ref-dir", required=True)
     p.add_argument("--vae", required=True)
     p.add_argument("--vae-ckpt", required=True)
-    p.add_argument("--keep", nargs="+", type=float, default=[0.3, 0.5, 0.7])
+    p.add_argument("--keep", nargs="*", type=float, default=[0.3, 0.5, 0.7])
+    p.add_argument("--fine-scale", nargs="*", type=int, default=[], help="coarse/fine blur sizes in latent voxels")
     p.add_argument("--ode-steps", type=int, default=20)
     p.add_argument("--guidance", type=float, default=1.0)
     p.add_argument("--seed", type=int, default=0)
@@ -79,8 +82,9 @@ def main() -> None:
     nyu = int(y[is_tgt][0])
     val_src = np.where(va & ~is_tgt)[0]
 
-    f0 = coarse(z)
-    probe_before, before = probe(f0[tr], y[tr], f0[va], y[va])
+    feats = {"": coarse, "_fine": fine}
+    f0 = {k: f(z) for k, f in feats.items()}
+    before = {k: probe(f[tr], y[tr], f[va], y[va]) for k, f in f0.items()}
 
     # NYU training reference: average foreground intensity quantiles
     ref_dir = Path(args.ref_dir)
@@ -101,8 +105,8 @@ def main() -> None:
                 target.symlink_to(source)
 
     summaries = []
-    for keep in args.keep:
-        name = f"keep_{keep:.2f}"
+    settings = [(f"keep_{k:.2f}", k, 0) for k in args.keep] + [(f"fine_s{s}", 0.0, s) for s in args.fine_scale]
+    for name, keep, scale in settings:
         zh = np.empty(z.shape, dtype=np.float32)
         with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
             for s in range(0, len(z), 8):
@@ -112,19 +116,20 @@ def main() -> None:
                                      for i in idx]).to(device)
                 a = torch.from_numpy(maps[idx].astype(np.float32) / 255).to(device)
                 site = torch.full((len(idx),), nyu, device=device)
-                zr = regenerate(net, z0, noise, site, a, keep, args.ode_steps, args.guidance).float()
+                zr = regenerate(net, z0, noise, site, a, keep, args.ode_steps, args.guidance, scale).float()
                 zh[idx] = stats.denormalize(zr).cpu().numpy()
         moved = ((stats.normalize(torch.from_numpy(zh)) - stats.normalize(torch.from_numpy(z.astype(np.float32))))
                  ** 2).mean((1, 2, 3, 4)).numpy()
-        res = {"checkpoint": args.checkpoint, "step": ck["step"], "keep": keep, "guidance": args.guidance,
-               "latent_moved_val_source": float(moved[val_src].mean()), "probe_before": probe_before}
-
-        fh = coarse(zh)
-        res["probe_frozen"] = float(balanced_accuracy_score(y[val_src], before.predict(fh[val_src])))
-        res["frozen_predicts_nyu"] = float((before.predict(fh[val_src]) == nyu).mean())
-        res["probe_output_trained"], _ = probe(fh[tr], y[tr], fh[va], y[va])
-        fk = np.where(is_tgt[:, None], f0, fh)  # NYU scans left as they are (E2's protocol)
-        res["probe_output_trained_nyu_original"], _ = probe(fk[tr], y[tr], fk[va], y[va])
+        res = {"checkpoint": args.checkpoint, "step": ck["step"], "setting": name, "keep": keep, "fine_scale": scale,
+               "guidance": args.guidance, "latent_moved_val_source": float(moved[val_src].mean())}
+        for k, f in feats.items():
+            fh = f(zh)
+            res[f"probe_before{k}"] = before[k][0]
+            res[f"probe_frozen{k}"] = float(balanced_accuracy_score(y[val_src], before[k][1].predict(fh[val_src])))
+            res[f"frozen_predicts_nyu{k}"] = float((before[k][1].predict(fh[val_src]) == nyu).mean())
+            res[f"probe_output_trained{k}"], _ = probe(fh[tr], y[tr], fh[va], y[va])
+            fk = np.where(is_tgt[:, None], f0[k], fh)  # NYU scans left as they are (E2's protocol)
+            res[f"probe_output_trained_nyu_original{k}"], _ = probe(fk[tr], y[tr], fk[va], y[va])
         print({k: round(v, 3) if isinstance(v, float) else v for k, v in res.items()}, flush=True)
 
         rows = []

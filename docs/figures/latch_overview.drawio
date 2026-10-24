@@ -1,0 +1,135 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="training" name="1 Training">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="x" value="&lt;b&gt;x&lt;/b&gt; T1 scan, site s&lt;br&gt;1×192×224×192" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="enc" value="&lt;b&gt;VAE encoder&lt;/b&gt;&lt;br&gt;(frozen)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6E9EE;strokeColor=#8C96A8;dashed=1;fontSize=15;fontColor=#14213D;" vertex="1" parent="1">
+          <mxGeometry x="260" y="120" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fs" value="&lt;b&gt;FastSurfer&lt;/b&gt;&lt;br&gt;(frozen)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6E9EE;strokeColor=#8C96A8;dashed=1;fontSize=15;fontColor=#14213D;" vertex="1" parent="1">
+          <mxGeometry x="260" y="300" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eps" value="&lt;b&gt;ε&lt;/b&gt; noise&lt;br&gt;4×48×56×48" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="470" y="20" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="z" value="&lt;b&gt;z&lt;/b&gt; latent&lt;br&gt;4×48×56×48" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="470" y="120" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="a" value="&lt;b&gt;a&lt;/b&gt; anatomy maps&lt;br&gt;10×48×56×48" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="470" y="300" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="mix" value="&lt;b&gt;mix&lt;/b&gt; → z&lt;sub&gt;t&lt;/sub&gt;&lt;br&gt;(1−t)·ε + t·z" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;dashed=0;fontSize=14;fontColor=#14213D;" vertex="1" parent="1">
+          <mxGeometry x="690" y="115" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="cond" value="&lt;b&gt;t&lt;/b&gt;, &lt;b&gt;site s&lt;/b&gt;&lt;br&gt;(17 sites + unknown)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="900" y="20" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="gen" value="&lt;b&gt;Generator&lt;/b&gt;&lt;br&gt;3D U-Net&lt;br&gt;(trained)&lt;br&gt;&lt;br&gt;input: z&lt;sub&gt;t&lt;/sub&gt; + a&lt;br&gt;14×48×56×48" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#14213D;strokeColor=#14213D;fontSize=16;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="900" y="110" width="170" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="v" value="&lt;b&gt;v&lt;/b&gt; velocity&lt;br&gt;4×48×56×48" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="150" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="loss1" value="&lt;b&gt;Loss 1&lt;/b&gt;&lt;br&gt;v vs (z − ε)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F6E3D8;strokeColor=#B4441A;fontSize=14;fontColor=#14213D;" vertex="1" parent="1">
+          <mxGeometry x="1350" y="140" width="170" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="zhat" value="&lt;b&gt;ẑ&lt;/b&gt; predicted end&lt;br&gt;z&lt;sub&gt;t&lt;/sub&gt; + (1−t)·v" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="300" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="reader" value="&lt;b&gt;Anatomy reader&lt;/b&gt;&lt;br&gt;(frozen)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6E9EE;strokeColor=#8C96A8;dashed=1;fontSize=15;fontColor=#14213D;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="570" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="loss2" value="&lt;b&gt;Loss 2&lt;/b&gt;&lt;br&gt;read maps vs a" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F6E3D8;strokeColor=#B4441A;fontSize=14;fontColor=#14213D;" vertex="1" parent="1">
+          <mxGeometry x="900" y="560" width="170" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="x" target="enc"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="x" target="fs"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="enc" target="z"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="z" target="mix"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;exitX=1;exitY=0.5;entryX=0.5;entryY=0;" edge="1" parent="1" source="eps" target="mix"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;entryX=0;entryY=0.15;" edge="1" parent="1" source="mix" target="gen"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;entryX=0;entryY=0.85;" edge="1" parent="1" source="a" target="gen"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="cond" target="gen"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;exitX=1;exitY=0.27;" edge="1" parent="1" source="gen" target="v"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="v" target="loss1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="v" target="zhat"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="zhat" target="reader"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="reader" target="loss2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#B4441A;strokeWidth=2;dashed=1;exitX=1;exitY=0.85;entryX=0;entryY=0.5;" edge="1" parent="1" source="a" target="loss2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="leg1" value="Frozen (never trained)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6E9EE;strokeColor=#8C96A8;dashed=1;fontSize=13;fontColor=#14213D;" vertex="1" parent="1">
+          <mxGeometry x="40" y="700" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="Trained" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#14213D;strokeColor=#14213D;fontSize=13;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="230" y="700" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" value="Data, with its shape" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=13;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="370" y="700" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" value="Loss (total = Loss 1 + Loss 2)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F6E3D8;strokeColor=#B4441A;fontSize=13;fontColor=#14213D;" vertex="1" parent="1">
+          <mxGeometry x="560" y="695" width="220" height="50" as="geometry" />
+        </mxCell>
+      <mxCell id="seg" value="&lt;b&gt;segmentation&lt;/b&gt;&lt;br&gt;1 label per 1 mm voxel&lt;br&gt;1×192×224×192, ~95 labels" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1"><mxGeometry x="250" y="420" width="170" height="70" as="geometry" /></mxCell><mxCell id="grp" value="&lt;b&gt;fixed rule&lt;/b&gt; (no learning)&lt;br&gt;1. group labels → 10 tissues&lt;br&gt;2. 4×4×4-voxel blocks:&lt;br&gt;share of each tissue" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FBFBF8;strokeColor=#14213D;fontSize=13;fontColor=#14213D;" vertex="1" parent="1"><mxGeometry x="460" y="415" width="180" height="80" as="geometry" /></mxCell><mxCell id="s1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="fs" target="seg"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="s2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="seg" target="grp"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="grp" target="a"><mxGeometry relative="1" as="geometry" /></mxCell></root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="harmonize" name="2 Harmonization">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="720" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="x" value="&lt;b&gt;x&lt;/b&gt; T1 scan, any site&lt;br&gt;1×192×224×192" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="enc" value="&lt;b&gt;VAE encoder&lt;/b&gt;&lt;br&gt;not used" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6E9EE;strokeColor=#8C96A8;dashed=1;fontSize=15;fontColor=#14213D;opacity=35;textOpacity=60;" vertex="1" parent="1">
+          <mxGeometry x="260" y="120" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fs" value="&lt;b&gt;FastSurfer&lt;/b&gt;&lt;br&gt;(frozen)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6E9EE;strokeColor=#8C96A8;dashed=1;fontSize=15;fontColor=#14213D;" vertex="1" parent="1">
+          <mxGeometry x="260" y="300" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eps" value="&lt;b&gt;ε&lt;/b&gt; noise&lt;br&gt;4×48×56×48" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="470" y="20" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="a" value="&lt;b&gt;a&lt;/b&gt; anatomy maps&lt;br&gt;10×48×56×48" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="470" y="300" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cond" value="&lt;b&gt;site = NYU&lt;/b&gt;&lt;br&gt;20 steps, t: 0 → 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="900" y="20" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="gen" value="&lt;b&gt;Generator&lt;/b&gt;&lt;br&gt;3D U-Net&lt;br&gt;(trained)&lt;br&gt;&lt;br&gt;starts from ε,&lt;br&gt;guided by a" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#14213D;strokeColor=#14213D;fontSize=16;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="900" y="110" width="170" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="zhat" value="&lt;b&gt;ẑ&lt;/b&gt; new latent&lt;br&gt;4×48×56×48" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="210" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dec" value="&lt;b&gt;VAE decoder&lt;/b&gt;&lt;br&gt;(frozen)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6E9EE;strokeColor=#8C96A8;dashed=1;fontSize=15;fontColor=#14213D;" vertex="1" parent="1">
+          <mxGeometry x="1350" y="210" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xhat" value="&lt;b&gt;x̂&lt;/b&gt; harmonized scan&lt;br&gt;1×192×224×192" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F6E3D8;strokeColor=#B4441A;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="205" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="Only the anatomy maps a come from x. No intensities pass, so scanner contrast, noise and sharpness cannot reach x̂." style="text;whiteSpace=wrap;html=1;fontSize=14;fontColor=#14213D;" vertex="1" parent="1">
+          <mxGeometry x="40" y="540" width="600" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="h2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="x" target="fs"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="h6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.15;" edge="1" parent="1" source="eps" target="gen"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="h8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;entryX=0;entryY=0.85;" edge="1" parent="1" source="a" target="gen"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="h9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="cond" target="gen"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="h10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="gen" target="zhat"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="h11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="zhat" target="dec"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="h12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="dec" target="xhat"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="leg1" value="Frozen (never trained)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6E9EE;strokeColor=#8C96A8;dashed=1;fontSize=13;fontColor=#14213D;" vertex="1" parent="1">
+          <mxGeometry x="40" y="640" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="Trained" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#14213D;strokeColor=#14213D;fontSize=13;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="230" y="640" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" value="Data, with its shape" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=13;fontColor=#14213D;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="370" y="640" width="170" height="40" as="geometry" />
+        </mxCell>
+      <mxCell id="seg" value="&lt;b&gt;segmentation&lt;/b&gt;&lt;br&gt;1 label per 1 mm voxel&lt;br&gt;1×192×224×192, ~95 labels" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#14213D;fontSize=14;fontColor=#14213D;arcSize=20;" vertex="1" parent="1"><mxGeometry x="250" y="420" width="170" height="70" as="geometry" /></mxCell><mxCell id="grp" value="&lt;b&gt;fixed rule&lt;/b&gt; (no learning)&lt;br&gt;1. group labels → 10 tissues&lt;br&gt;2. 4×4×4-voxel blocks:&lt;br&gt;share of each tissue" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FBFBF8;strokeColor=#14213D;fontSize=13;fontColor=#14213D;" vertex="1" parent="1"><mxGeometry x="460" y="415" width="180" height="80" as="geometry" /></mxCell><mxCell id="s1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="fs" target="seg"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="s2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="seg" target="grp"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#14213D;strokeWidth=2;" edge="1" parent="1" source="grp" target="a"><mxGeometry relative="1" as="geometry" /></mxCell></root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

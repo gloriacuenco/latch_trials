@@ -21,11 +21,13 @@ Usage (on vpulab, from the repo root):
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import matplotlib
 
-matplotlib.use("Agg")
+if "ipykernel" not in sys.modules:  # plain run: save figures only; Interactive Window: show them inline
+    matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
@@ -115,4 +117,5 @@ for a, (title, img, cmap) in zip(ax.ravel(), panels):
     a.axis("off")
 plt.tight_layout()
 plt.savefig(out / "overview.png", dpi=110)
+plt.show()
 print("saved overview.png in", out)
